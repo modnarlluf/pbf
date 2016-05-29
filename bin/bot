@@ -1,6 +1,11 @@
 #!/usr/bin/env php
 <?php
 
+use PBF\Application\Log\ResourceLogger;
+use PBF\Infrastructure\Supervisor\PcntlSupervisor;
+
+$kernel = new PBF(new PcntlSupervisor(), new ResourceLogger(STDERR));
+
 while (true) {
     sleep(1);
 }

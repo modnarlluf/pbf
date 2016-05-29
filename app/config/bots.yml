@@ -1,0 +1,13 @@
+discord_1:
+  type: discord
+  commands: *
+  config:
+    username: foo
+    token: bar
+
+irc_1:
+  type: irc
+  commands: *
+  config:
+    username: foo
+    server: bar.baz
