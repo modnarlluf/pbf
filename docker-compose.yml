@@ -1,0 +1,4 @@
+php:
+  build: res/docker/php
+  volumes:
+    - .:/srv/pbf/
