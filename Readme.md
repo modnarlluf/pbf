@@ -1,7 +1,9 @@
 PHP Bot Framework
 ===
 
-This project provides a framework for building chat bots with php.
+This project provides a framework for building bots with php.
+
+It's currently unix-only as only pcntl is supported for multitasking.
 
 Requirements
 ---
@@ -9,9 +11,7 @@ Requirements
 - PHP 7
 - pcntl
 
-OR
-
-- Docker
+Or Docker
 
 Install
 ---

@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace PBF\Infrastructure\IRC;
 
 use PBF\Domain\Connexion\ConnexionInterface;
+use PBF\Domain\Message\DefaultMessage;
 use PBF\Domain\Message\MessageInterface;
+use PBF\Infrastructure\Stream\SocketStream;
 
 class IRCConnexion implements ConnexionInterface
 {
@@ -19,6 +21,9 @@ class IRCConnexion implements ConnexionInterface
 
     /** @var int */
     private $port;
+
+    /** @var resource */
+    private $socket;
 
     /**
      * @param string $chan
@@ -39,7 +44,10 @@ class IRCConnexion implements ConnexionInterface
      */
     public function receive(): MessageInterface
     {
-        // TODO: Implement receive() method.
+        $message = new DefaultMessage();
+        $message->setContent(new SocketStream($this->socket));
+
+        return $message;
     }
 
     /**
@@ -50,7 +58,9 @@ class IRCConnexion implements ConnexionInterface
      */
     public function send(MessageInterface $message)
     {
-        // TODO: Implement send() method.
+        $message = (string) $message->getContent();
+
+        \socket_write($this->socket, $message);
     }
 
     /**
@@ -60,7 +70,8 @@ class IRCConnexion implements ConnexionInterface
      */
     public function open(): bool
     {
-        // TODO: Implement open() method.
+        $this->socket = \socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        return \socket_connect($this->socket, $this->host, $this->port);
     }
 
     /**
@@ -70,6 +81,6 @@ class IRCConnexion implements ConnexionInterface
      */
     public function close(): bool
     {
-        // TODO: Implement close() method.
+        \socket_close($this->socket);
     }
 }

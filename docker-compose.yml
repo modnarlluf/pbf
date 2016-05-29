@@ -2,3 +2,13 @@ php:
   build: res/docker/php
   volumes:
     - .:/srv/pbf/
+  links:
+    - ircd:irc
+
+# Uncomment to start irc server
+ircd:
+  image: platzhalter/inspircd
+  ports:
+    - 6667:6667
+  volumes:
+    - ./res/docker/ircd/:/inspircd/conf/

@@ -9,7 +9,10 @@ class ResourceLogger extends AbstractLogger
 {
     private $resource;
 
-    public function __construct(resource $resource)
+    /**
+     * @param resource $resource
+     */
+    public function __construct($resource)
     {
         $this->resource = $resource;
     }
@@ -24,6 +27,6 @@ class ResourceLogger extends AbstractLogger
      */
     public function log($level, $message, array $context = array())
     {
-        fprintf($this->resource, "[%s] %s %s", $level, $message, json_encode($context));
+        fprintf($this->resource, "[%s] %s %s\n", $level, $message, json_encode($context));
     }
 }

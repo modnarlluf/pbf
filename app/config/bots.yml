@@ -1,13 +1,7 @@
-discord_1:
-  type: discord
-  commands: *
-  config:
-    username: foo
-    token: bar
-
 irc_1:
   type: irc
-  commands: *
+  commands: "*"
   config:
     username: foo
-    server: bar.baz
+    host: irc
+    port: 6667

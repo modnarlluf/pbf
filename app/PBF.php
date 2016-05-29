@@ -14,4 +14,14 @@ class PBF extends Kernel
             "irc" => new PBF\Infrastructure\IRC\IRCModule(),
         ];
     }
+
+    /**
+     * Get the app root dir
+     *
+     * @return string
+     */
+    protected function getRootDir(): string
+    {
+        return __DIR__;
+    }
 }

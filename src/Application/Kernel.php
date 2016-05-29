@@ -8,7 +8,7 @@ use PBF\Application\Exception\InvalidBotTypeException;
 use PBF\Application\Exception\InvalidCommandCategoryException;
 use PBF\Domain\Bot\BotInterface;
 use PBF\Domain\Command\CommandInterface;
-use PBF\Domain\Supervisor\SupervisorInterface;
+use PBF\Domain\Supervisor\BotSupervisorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Yaml\Yaml;
 
@@ -27,17 +27,17 @@ abstract class Kernel
     /** @var BotInterface[] */
     private $bots;
 
-    /** @var SupervisorInterface */
+    /** @var BotSupervisorInterface */
     private $supervisor;
 
     /** @var LoggerInterface */
     private $logger;
 
     /**
-     * @param SupervisorInterface $supervisor
+     * @param BotSupervisorInterface $supervisor
      * @param LoggerInterface $logger
      */
-    public function __construct(SupervisorInterface $supervisor, LoggerInterface $logger)
+    public function __construct(BotSupervisorInterface $supervisor, LoggerInterface $logger)
     {
         $this->supervisor = $supervisor;
         $this->logger = $logger;
@@ -50,9 +50,15 @@ abstract class Kernel
      */
     public function boot()
     {
+        $this->logger->info("Start booting PBF kernel");
         $this->loadModules();
         $this->loadCommandsConfiguration();
         $this->loadBotsConfiguration();
+
+        foreach ($this->bots as $id => $bot) {
+            $this->supervisor->addInstance($id, $bot);
+        }
+        $this->logger->info("Finished booting PBF kernel");
     }
 
     /**
@@ -62,7 +68,8 @@ abstract class Kernel
      */
     public function run()
     {
-
+        $this->logger->info("Starting bots");
+        $this->supervisor->start();
     }
 
     /**
@@ -72,7 +79,7 @@ abstract class Kernel
      */
     public function shutdown()
     {
-
+        $this->supervisor->stop();
     }
 
     /**
@@ -107,7 +114,7 @@ abstract class Kernel
      */
     private function loadBotsConfiguration()
     {
-        $config = Yaml::parse(file_get_contents(__DIR__."/".static::BOTS_FILE));
+        $config = Yaml::parse(file_get_contents($this->getRootDir()."/".static::BOTS_FILE));
 
         foreach ($config as $botId => $botConfig) {
             $type = (string) ($botConfig["type"] ?? "");
@@ -124,8 +131,10 @@ abstract class Kernel
             $commands = iterator_to_array($this->resolveBotCommands($rawCommands));
 
             $botFactoryConfig = (array) ($botConfig["config"] ?? []);
+            $botFactoryConfig["commands"] = $commands;
+
             $typeModule = $this->modules[$type];
-            $bot = $typeModule->getBotFactory()->getBot($botFactoryConfig, $commands);
+            $bot = $typeModule->getBotFactory()->getBot($botFactoryConfig);
 
             $this->bots[$botId] = $bot;
         }
@@ -173,7 +182,7 @@ abstract class Kernel
      */
     private function loadCommandsConfiguration()
     {
-        $config = Yaml::parse(file_get_contents(__DIR__."/".static::COMMANDS_FILE));
+        $config = Yaml::parse(file_get_contents($this->getRootDir()."/".static::COMMANDS_FILE));
 
         foreach ($config as $categoryName => $category) {
             if (is_array($category)) {
@@ -218,4 +227,11 @@ abstract class Kernel
      * @return ModuleInterface[]|array
      */
     abstract protected function getModules(): array;
+
+    /**
+     * Get the app root dir
+     *
+     * @return string
+     */
+    abstract protected function getRootDir(): string;
 }

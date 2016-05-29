@@ -4,11 +4,9 @@ declare(strict_types=1);
 namespace PBF\Infrastructure\Command;
 
 use PBF\Domain\Command\CommandInterface;
-use PBF\Domain\Command\string;
 
 class CatCommand implements CommandInterface
 {
-
     /**
      * Execute a command with the given arguments
      *

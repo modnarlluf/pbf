@@ -10,6 +10,8 @@
     ],
     "minimum-stability": "stable",
     "require": {
+        "php": ">=7.0",
+        "ext-pcntl": "*",
         "symfony/yaml": "~2.8|~3.0",
         "psr/log": "^1.0"
     },

@@ -3,23 +3,23 @@ declare(strict_types=1);
 
 namespace PBF\Infrastructure\IRC;
 
-use PBF\Domain\Bot\BotFactoryInterface;
-use PBF\Domain\Bot\BotInterface;
-use PBF\Domain\Bot\DefaultBot;
+use PBF\Domain\Bot\AbstractCommandBotFactory;
+use PBF\Domain\Connexion\ConnexionInterface;
 
-class IRCBotFactory implements BotFactoryInterface
+class IRCBotFactory extends AbstractCommandBotFactory
 {
-    public function getBot(array $config = [], array $commands = []): BotInterface
+    /**
+     * Build the bot connexion
+     *
+     * @param array $config
+     * @return ConnexionInterface
+     */
+    public function getConnexion(array $config = []): ConnexionInterface
     {
-        $connexion = new IRCConnexion(
+        return new IRCConnexion(
             $config["chan"] ?? "",
             $config["host"] ?? IRCConnexion::DEFAULT_HOST,
             $config["port"] ?? IRCConnexion::DEFAULT_PORT
         );
-
-        $bot = new DefaultBot($connexion);
-        $bot->registerCommands($commands);
-
-        return $bot;
     }
 }

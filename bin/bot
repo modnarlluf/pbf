@@ -2,10 +2,18 @@
 <?php
 
 use PBF\Application\Log\ResourceLogger;
-use PBF\Infrastructure\Supervisor\PcntlSupervisor;
+use PBF\Infrastructure\Supervisor\PcntlBotSupervisor;
 
-$kernel = new PBF(new PcntlSupervisor(), new ResourceLogger(STDERR));
+require_once __DIR__."/../vendor/autoload.php";
+
+$kernel = new PBF(new PcntlBotSupervisor(), new ResourceLogger(STDERR));
+$kernel->boot();
+
+register_shutdown_function([$kernel, "shutdown"]);
+
+$kernel->run();
 
 while (true) {
+    // Wait to be killed, child work is not illegal here. French government would be proud of it.
     sleep(1);
 }

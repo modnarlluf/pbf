@@ -9,8 +9,8 @@ interface BotFactoryInterface
 {
     /**
      * @param array $config
-     * @param \PBF\Domain\Command\CommandInterface[] $commands
      * @return \PBF\Domain\Bot\BotInterface
+     * @throws \PBF\Domain\Bot\Exception\InvalidBotConfigurationException
      */
-    public function getBot(array $config = [], array $commands = []): BotInterface;
+    public function getBot(array $config = []): BotInterface;
 }
