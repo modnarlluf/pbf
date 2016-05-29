@@ -2,6 +2,7 @@ irc_1:
   type: irc
   commands: "*"
   config:
-    username: foo
+    chan: foo
+    nick: lovenunu_bot
     host: irc
     port: 6667

@@ -47,15 +47,25 @@ class PcntlBotSupervisor implements BotSupervisorInterface
         foreach ($this->instances as $id => $bot) {
             $pid = \pcntl_fork();
 
-            switch($pid) {
-                case -1:
+            switch(true) {
+                case -1 === $pid:
                     // child creation error
                     throw new InstanceCreationException(sprintf("Failed to create an instance for '%s'", $id));
 
-                case 0:
+                case 0 !== $pid:
+                    // parent process
+                    $this->runningInstances[$id] = $pid;
+                    $this->logger->info("[Supervisor] Bot with id {id} started on process {pid}", [
+                        "id" => $id,
+                        "pid" => $pid
+                    ]);
+                    break;
+
+                default:
                     // child process
                     // Register shutdown function
                     \pcntl_signal(SIGHUP, [$bot, "stop"]);
+                    \pcntl_signal(SIGINT, [$bot, "stop"]);
                     \pcntl_signal(SIGTERM, [$bot, "stop"]);
                     \pcntl_signal(SIGQUIT, [$bot, "stop"]);
 
@@ -64,12 +74,6 @@ class PcntlBotSupervisor implements BotSupervisorInterface
                     while (true) {
                         $bot->loop();
                     }
-                    break;
-
-                default:
-                    // parent process
-                    $this->runningInstances[$id] = $pid;
-                    $this->logger->info("Bot with id {id} started on process {pid}", ["id" => $id, "pid" => $pid]);
             }
         }
     }
@@ -83,7 +87,7 @@ class PcntlBotSupervisor implements BotSupervisorInterface
     {
         foreach ($this->runningInstances as $id => $pid) {
             \posix_kill($pid, SIGTERM);
-            $this->logger->info("Bot with id {id} stopped with pid {pid}", ["id" => $id, "pid" => $pid]);
+            $this->logger->info("[Supervisor] Bot with id {id} stopped with pid {pid}", ["id" => $id, "pid" => $pid]);
         }
     }
 }

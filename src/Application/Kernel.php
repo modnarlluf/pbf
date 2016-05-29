@@ -50,15 +50,17 @@ abstract class Kernel
      */
     public function boot()
     {
-        $this->logger->info("Start booting PBF kernel");
+        $this->logger->info("[Kernel] Start booting PBF kernel");
         $this->loadModules();
         $this->loadCommandsConfiguration();
         $this->loadBotsConfiguration();
 
         foreach ($this->bots as $id => $bot) {
+            $this->logger->info("[Kernel] Register bot instance {id} in supervisor", ["id" => $id]);
             $this->supervisor->addInstance($id, $bot);
         }
-        $this->logger->info("Finished booting PBF kernel");
+
+        $this->logger->info("[Kernel] Finished booting PBF kernel");
     }
 
     /**
@@ -68,7 +70,7 @@ abstract class Kernel
      */
     public function run()
     {
-        $this->logger->info("Starting bots");
+        $this->logger->info("[Kernel] Starting bots");
         $this->supervisor->start();
     }
 
@@ -79,6 +81,7 @@ abstract class Kernel
      */
     public function shutdown()
     {
+        $this->logger->info("[Kernel] Stopping bots");
         $this->supervisor->stop();
     }
 
@@ -134,7 +137,7 @@ abstract class Kernel
             $botFactoryConfig["commands"] = $commands;
 
             $typeModule = $this->modules[$type];
-            $bot = $typeModule->getBotFactory()->getBot($botFactoryConfig);
+            $bot = $typeModule->getBotFactory()->getBot($botId, $botFactoryConfig, $this->logger);
 
             $this->bots[$botId] = $bot;
         }

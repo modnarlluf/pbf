@@ -56,6 +56,7 @@ class CommandBot extends AbstractBot
     protected function handleMessage(MessageInterface $message, ConnexionInterface $connexion)
     {
         $messageContent = (string) $message->getContent();
+        $this->getLogger()->info("[Bot] Received an irc message: {content}", ["content" => $messageContent]);
 
         if (0 === substr_compare($messageContent, $this->commandPrefix, 0)) {
             $arguments = preg_split("/\\s+/", $messageContent);

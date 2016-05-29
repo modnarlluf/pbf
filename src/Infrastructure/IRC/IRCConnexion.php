@@ -60,7 +60,7 @@ class IRCConnexion implements ConnexionInterface
     {
         $message = (string) $message->getContent();
 
-        \socket_write($this->socket, $message);
+        \socket_write($this->socket, $message."\r\n");
     }
 
     /**

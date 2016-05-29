@@ -3,8 +3,17 @@ declare (strict_types=1);
 
 namespace PBF\Domain\Bot;
 
+use Psr\Log\LoggerInterface;
+
 interface BotInterface
 {
+    /**
+     * Get the bot unique ID
+     *
+     * @return string
+     */
+    public function getId(): string;
+
     /**
      * This method is executed once, it should initialize the bot
      *
@@ -26,4 +35,12 @@ interface BotInterface
      * @return void
      */
     public function stop();
+
+    /**
+     * Set the logger of the bot
+     *
+     * @param LoggerInterface $logger
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger);
 }

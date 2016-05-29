@@ -5,18 +5,40 @@ namespace PBF\Domain\Bot;
 
 use PBF\Domain\Connexion\ConnexionInterface;
 use PBF\Domain\Message\MessageInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 abstract class AbstractBot implements BotInterface
 {
+    /** @var string */
+    private $id;
+
     /** @var ConnexionInterface */
     private $connexion;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
+     * @param string $id
      * @param ConnexionInterface $connexion
+     * @param null|LoggerInterface $logger
      */
-    public function __construct(ConnexionInterface $connexion)
+    final public function __construct(string $id, ConnexionInterface $connexion, LoggerInterface $logger = null)
     {
+        $this->id = $id;
         $this->connexion = $connexion;
+        $this->setLogger($logger ?? new NullLogger());
+    }
+
+    /**
+     * Get the bot unique ID
+     *
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
     }
 
     /**
@@ -50,6 +72,42 @@ abstract class AbstractBot implements BotInterface
     public function stop()
     {
         $this->connexion->close();
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
+    }
+
+    /**
+     * Set the logger of the bot
+     *
+     * @param LoggerInterface $logger
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * @return ConnexionInterface
+     */
+    public function getConnexion(): ConnexionInterface
+    {
+        return $this->connexion;
+    }
+
+    /**
+     * @param ConnexionInterface $connexion
+     * @return void
+     */
+    public function setConnexion(ConnexionInterface $connexion)
+    {
+        $this->connexion = $connexion;
     }
 
     /**

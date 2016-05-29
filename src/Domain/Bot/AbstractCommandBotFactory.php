@@ -6,31 +6,39 @@ namespace PBF\Domain\Bot;
 use PBF\Domain\Bot\Exception\InvalidBotClassException;
 use PBF\Domain\Connexion\ConnexionInterface;
 use PBF\Infrastructure\Bot\CommandBot;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractCommandBotFactory implements BotFactoryInterface
 {
+    const BOT_BASE_CLASS = CommandBot::class;
+
     /**
+     * Build an instance of BotInterface with the given config
+     *
+     * @param string $id
      * @param array $config
+     * @param null|LoggerInterface $logger
      * @return BotInterface
-     * @throws \PBF\Domain\Bot\Exception\InvalidBotConfigurationException
+     * @throws InvalidBotClassException
      */
-    public function getBot(array $config = []): BotInterface
+    public function getBot(string $id, array $config = [], LoggerInterface $logger = null): BotInterface
     {
         $connexion = $this->getConnexion($config);
 
         if (isset($config["bot_class"])) {
             $botReflection = new \ReflectionClass($config["bot_class"]);
 
-            if (!$botReflection->isSubclassOf(CommandBot::class)) {
+            if (!$botReflection->isSubclassOf(static::BOT_BASE_CLASS)) {
                 throw new InvalidBotClassException(sprintf(
                     "The 'bot_class' entry must provide a class extending %s",
-                    CommandBot::class
+                    static::BOT_BASE_CLASS
                 ));
             }
 
-            $bot = $botReflection->newInstance($connexion);
+            $bot = $botReflection->newInstance($id, $connexion, $logger);
         } else {
-            $bot = new CommandBot($connexion);
+            $baseClass = static::BOT_BASE_CLASS;
+            $bot = new $baseClass($id, $connexion, $logger);
         }
 
         $bot->registerCommands($config["commands"] ?? []);

@@ -6,10 +6,9 @@ use PBF\Infrastructure\Supervisor\PcntlBotSupervisor;
 
 require_once __DIR__."/../vendor/autoload.php";
 
-$kernel = new PBF(new PcntlBotSupervisor(), new ResourceLogger(STDERR));
+$logger = new ResourceLogger(STDERR);
+$kernel = new PBF(new PcntlBotSupervisor($logger), $logger);
 $kernel->boot();
-
-register_shutdown_function([$kernel, "shutdown"]);
 
 $kernel->run();
 
